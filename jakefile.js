@@ -21,8 +21,11 @@ task("lint", [], function() {
 desc("Test everything");
 task("test", [], function() {
 	var reporter = require("nodeunit").reporters.minimal;
-	reporter.run(["src/server/_server_test.js"]);
-});
+	reporter.run(["src/server/_server_test.js"], null, function(failures) {
+		if (failures) fail("Test fails");
+		complete();
+	});
+}, {async: true}); //Ponemos la opción de false para que se ejecuten de manera síncrona, debemos esperar a que pasen los test antes de paras a la task "Integrate"
 
 desc("Integrate");
 task("integrate", ["default"], function() {
