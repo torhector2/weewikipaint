@@ -36,7 +36,7 @@ task("integrate", ["default"], function() {
 	console.log("	c. 'jake'");
 	console.log("	d. 'If jake fails, stop! Try Again after fixing the issue!'");
 	console.log("3. 'git checkout' integration. Nos cambiamos a la rama integration.");
-	console.log("4.	'git merge master --no--f --log' Mergeamos master en integration");
+	console.log("4.	'git merge master --no-f --log' Mergeamos master en integration");
 	console.log("5. 'git checkout master. Nos cambiamos a master");
 });
 
