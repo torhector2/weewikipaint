@@ -25,7 +25,7 @@ task("test", [], function() {
 		if (failures) fail("Test fails");
 		complete();
 	});
-}, {async: true}); //Ponemos la opción de false para que se ejecuten de manera síncrona, debemos esperar a que pasen los test antes de paras a la task "Integrate"
+}, {async: true}); //Ponemos la opción de true para que se ejecuten de manera asíncrona, debemos esperar a que pasen los test antes de paras a la task "Integrate"
 
 desc("Integrate");
 task("integrate", ["default"], function() {
