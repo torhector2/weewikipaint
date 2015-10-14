@@ -3,13 +3,6 @@
 var server = require("./server");
 var http = require("http");
 
-exports.tearDown = function(done) {
-	server.stop(function() {
-		done();
-	});
-};
-
-
 exports.test_serverReturnsHelloWorld = function(test) {
 	server.start(8080);
 	var request = http.get("http://localhost:8080");
@@ -25,7 +18,31 @@ exports.test_serverReturnsHelloWorld = function(test) {
 		});
 		response.on("end", function() {
 			test.ok(receivedData, "should have received response data");
-			test.done();
+			server.stop(function() {
+				test.done();
+			});
 		});
+	});
+};
+
+exports.test_serverRequiresPortNumber = function(test) {
+	//Comprueba que la función lance un error, en este caso por no pasar portNumber, si vemos el método start de server.js veremos que lanza un new Error
+	test.throws(function() {
+		server.start();
+	});
+	test.done();
+};
+
+exports.test_serverRunsCallbackWhenStopCompletes = function(test) {
+	server.start(8080);
+	server.stop(function(error) {
+		test.done();	
+	});
+};
+
+exports.test_stopErrorsWhenNotRunning = function(test) {
+	server.stop(function(error) {
+		test.notEqual(error, undefined);
+		test.done();
 	});
 };
