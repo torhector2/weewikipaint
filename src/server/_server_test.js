@@ -11,7 +11,7 @@ exports.tearDown = function(done) {
 
 
 exports.test_serverReturnsHelloWorld = function(test) {
-	server.start();
+	server.start(8080);
 	var request = http.get("http://localhost:8080");
 	request.on("response", function(response) {
 		var receivedData = false;
