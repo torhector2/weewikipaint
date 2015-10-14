@@ -6,7 +6,8 @@ var server;
 exports.start = function() {
 	server = http.createServer();
 	server.on("request", function(request, response) {
-		response.end();
+		response.statusCode = 200;
+		response.end("Hello World");
 	});
 
 	server.listen(8080);
