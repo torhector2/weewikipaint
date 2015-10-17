@@ -25,6 +25,10 @@ exports.test_serverReturnsHelloWorld = function(test) {
 	});
 };
 
+exports.test_serverServeAFile = function(test) {
+	test.done();
+};
+
 exports.test_serverRequiresPortNumber = function(test) {
 	//Comprueba que la función lance un error, en este caso por no pasar portNumber, si vemos el método start de server.js veremos que lanza un new Error
 	test.throws(function() {
