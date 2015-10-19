@@ -2,6 +2,7 @@
 
 var server = require("./server");
 var http = require("http");
+var fs = require("fs");
 
 exports.test_serverReturnsHelloWorld = function(test) {
 	server.start(8080);
@@ -26,6 +27,12 @@ exports.test_serverReturnsHelloWorld = function(test) {
 };
 
 exports.test_serverServeAFile = function(test) {
+	//Integration test, not a unit test
+	var testDir = "generated/test";
+	var testFile = testDir + "/test.html";
+
+	fs.writeFileSync(testFile, "Hello world");
+
 	test.done();
 };
 
