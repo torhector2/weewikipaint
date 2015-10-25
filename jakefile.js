@@ -39,16 +39,16 @@
 
 	desc("Integrate");
 	task("integrate", ["default"], function() {
-		console.log("1. Make sure 'git status' is clean.");
-		console.log("2. Build on the integration box.");
-		console.log("   a. Walk over to integration box.");
-		console.log("   b. 'git pull'");
-		console.log("   c. 'jake strict=true'");
-		console.log("   d. If jake fails, stop! Try again after fixing the issue.");
-		console.log("3. 'git checkout integration'");
-		console.log("4. 'git merge master --no-ff --log'");
-		console.log("5. 'git checkout master'");
-	});
+	console.log("1. Make sure 'git status' is clean");
+	console.log("2. Build on the integration box");
+	console.log("	a. Walk over to integration box. Vamos al server de integración continua");
+	console.log("	b. 'git pull. Actualizamos el código en la rama principal (pero no en integration)'");
+	console.log("	c. 'jake'");
+	console.log("	d. 'If jake fails, stop! Try Again after fixing the issue!'");
+	console.log("3. 'git checkout' integration. Nos cambiamos a la rama integration.");
+	console.log("4.	'git merge master --no-f --log' Mergeamos master en integration");
+	console.log("5. 'git checkout master. Nos cambiamos a master");
+});
 
 //	desc("Ensure correct version of Node is present. Use 'strict=true' to require exact match");
 	task("nodeVersion", [], function() {
