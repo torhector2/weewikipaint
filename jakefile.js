@@ -20,18 +20,22 @@
 	task("lint", ["nodeVersion"], function() {
 		var lint = require("./build/lint/lint_runner.js");
 
-		var files = new jake.FileList();
-		files.include("**/*.js");
-		files.exclude("node_modules");
+		var javascriptFiles = new jake.FileList();
+		javascriptFiles.include("**/*.js");
+		javascriptFiles.exclude("node_modules");
 		var options = nodeLintOptions();
-		var passed = lint.validateFileList(files.toArray(), options, {});
+		var passed = lint.validateFileList(javascriptFiles.toArray(), options, {});
 		if (!passed) fail("Lint failed");
 	});
 
 	desc("Test everything");
 	task("test", ["nodeVersion", TEMP_TESTFILE_DIR], function() {
+		var testFiles = new jake.FileList();
+		testFiles.include("**/_*_test.js");
+		testFiles.exclude("node_modules");
+
 		var reporter = require("nodeunit").reporters["default"];
-		reporter.run(['src/server/_server_test.js'], null, function(failures) {
+		reporter.run(testFiles.toArray(), null, function(failures) {
 			if (failures) fail("Tests failed");
 			complete();
 		});
@@ -45,6 +49,7 @@
 	console.log("	b. 'git pull. Actualizamos el código en la rama principal (pero no en integration)'");
 	console.log("	c. 'jake'");
 	console.log("	d. 'If jake fails, stop! Try Again after fixing the issue!'");
+	console.log("NOTA: Volvemos a la máquina de desarrollo, dejamos la máquina de integración");
 	console.log("3. 'git checkout' integration. Nos cambiamos a la rama integration.");
 	console.log("4.	'git merge master --no-f --log' Mergeamos master en integration");
 	console.log("5. 'git checkout master. Nos cambiamos a master");

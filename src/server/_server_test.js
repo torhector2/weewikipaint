@@ -17,7 +17,7 @@
 		done();
 	};
 
-	exports.test_servesServesHomePageFromFile = function(test) {
+	exports.test_servesHomePageFromFile = function(test) {
 		//Integration test, not a unit test
 		
 		var expectedData = "This is home page file";
