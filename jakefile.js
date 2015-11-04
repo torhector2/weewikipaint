@@ -1,63 +1,128 @@
-/*global desc, task, jake, fail, complete */
-(function (){
-"use strict";
+/*global desc, task, jake, fail, complete, directory */
+(function() {
+	"use strict";
 
-desc("Build and test");
-task("default", ["lint", "test"]);
+	var NODE_VERSION = "v0.8.6";
+	var GENERATED_DIR = "generated";
+	var TEMP_TESTFILE_DIR = GENERATED_DIR + "/test";
 
-desc("Lint everything");
-task("lint", [], function() {
-	var lint = require("./build/lint/lint_runner.js");
+	directory(TEMP_TESTFILE_DIR);
 
-	var files = new jake.FileList();
-	files.include("**/*.js");
-	files.exclude("node_modules");
-	var passed = lint.validateFileList(files.toArray(), nodeLintOptions(), {});
-	if (!passed) {
-		fail("Lint failed");
-	}
-});
-
-desc("Test everything");
-task("test", [], function() {
-	var reporter = require("nodeunit").reporters.minimal;
-	reporter.run(["src/server/_server_test.js"], null, function(failures) {
-		if (failures) fail("Test fails");
-		complete();
+	desc("Delete all generated files");
+	task("clean", [], function() {
+		jake.rmRf(GENERATED_DIR);
 	});
-}, {async: true}); //Ponemos la opción de false para que se ejecuten de manera síncrona, debemos esperar a que pasen los test antes de paras a la task "Integrate"
 
-desc("Integrate");
-task("integrate", ["default"], function() {
+	desc("Build and test");
+	task("default", ["lint", "test"]);
+
+	desc("Lint everything");
+	task("lint", ["nodeVersion"], function() {
+		var lint = require("./build/lint/lint_runner.js");
+
+		var javascriptFiles = new jake.FileList();
+		javascriptFiles.include("**/*.js");
+		javascriptFiles.exclude("node_modules");
+		var options = nodeLintOptions();
+		var passed = lint.validateFileList(javascriptFiles.toArray(), options, {});
+		if (!passed) fail("Lint failed");
+	});
+
+	desc("Test everything");
+	task("test", ["nodeVersion", TEMP_TESTFILE_DIR], function() {
+		var testFiles = new jake.FileList();
+		testFiles.include("**/_*_test.js");
+		testFiles.exclude("node_modules");
+
+		var reporter = require("nodeunit").reporters["default"];
+		reporter.run(testFiles.toArray(), null, function(failures) {
+			if (failures) fail("Tests failed");
+			complete();
+		});
+	}, {async: true});
+
+	desc("Integrate");
+	task("integrate", ["default"], function() {
 	console.log("1. Make sure 'git status' is clean");
 	console.log("2. Build on the integration box");
 	console.log("	a. Walk over to integration box. Vamos al server de integración continua");
-	console.log("	b. 'git pull. Actualizamos el código en la rama principal (no en master)'");
+	console.log("	b. 'git pull. Actualizamos el código en la rama principal (pero no en integration)'");
 	console.log("	c. 'jake'");
 	console.log("	d. 'If jake fails, stop! Try Again after fixing the issue!'");
+	console.log("NOTA: Volvemos a la máquina de desarrollo, dejamos la máquina de integración");
 	console.log("3. 'git checkout' integration. Nos cambiamos a la rama integration.");
 	console.log("4.	'git merge master --no-f --log' Mergeamos master en integration");
 	console.log("5. 'git checkout master. Nos cambiamos a master");
 });
 
-function nodeLintOptions() {
-	var options = {
-		bitwise: true,
-		curly: false,
-		eqeqeq: true,
-		forin: true,
-		immed: true,
-		latedef: true,
-		newcap: true,
-		noarg: true,
-		noempty: true,
-		nonew: true,
-		regexp: true,
-		undef: true,
-		strict: true,
-		trailing: true,
-		node: true
-	};
-	return options;
-}
-})();
+//	desc("Ensure correct version of Node is present. Use 'strict=true' to require exact match");
+	task("nodeVersion", [], function() {
+		function failWithQualifier(qualifier) {
+			fail("Incorrect node version. Expected " + qualifier +
+					" [" + expectedString + "], but was [" + actualString + "].");
+		}
+
+		var expectedString = NODE_VERSION;
+		var actualString = process.version;
+		var expected = parseNodeVersion("expected Node version", expectedString);
+		var actual = parseNodeVersion("Node version", actualString);
+
+		if (process.env.strict) {
+			if (actual[0] !== expected[0] || actual[1] !== expected[1] || actual[2] !== expected[2]) {
+				failWithQualifier("exactly");
+			}
+		}
+		else {
+			if (actual[0] < expected[0]) failWithQualifier("at least");
+			if (actual[0] === expected[0] && actual[1] < expected[1]) failWithQualifier("at least");
+			if (actual[0] === expected[0] && actual[1] === expected[1] && actual[2] < expected[2]) failWithQualifier("at least");
+		}
+
+	});
+
+	function parseNodeVersion(description, versionString) {
+		var versionMatcher = /^v(\d+)\.(\d+)\.(\d+)$/;    // v[major].[minor].[bugfix]
+		var versionInfo = versionString.match(versionMatcher);
+		if (versionInfo === null) fail("Could not parse " + description + " (was '" + versionString + "')");
+
+		var major = parseInt(versionInfo[1], 10);
+		var minor = parseInt(versionInfo[2], 10);
+		var bugfix = parseInt(versionInfo[3], 10);
+		return [major, minor, bugfix];
+	}
+
+	function sh(command, callback) {
+		console.log("> " + command);
+
+		var stdout = "";
+		var process = jake.createExec(command, {printStdout:true, printStderr: true});
+		process.on("stdout", function(chunk) {
+			stdout += chunk;
+		});
+		process.on("cmdEnd", function() {
+			console.log();
+			callback(stdout);
+		});
+		process.run();
+	}
+
+	function nodeLintOptions() {
+		return {
+			bitwise:true,
+			curly:false,
+			eqeqeq:true,
+			forin:true,
+			immed:true,
+			latedef:true,
+			newcap:true,
+			noarg:true,
+			noempty:true,
+			nonew:true,
+			regexp:true,
+			undef:true,
+			strict:true,
+			trailing:true,
+			node:true
+		};
+	}
+}());
