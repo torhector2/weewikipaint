@@ -1,6 +1,7 @@
 //launch the server in the same way it happens in production
 //get a page
 //confirm we got something
+/*jshint regexp:false*/
 
 (function() {
 	"use strict";
@@ -56,11 +57,23 @@
 
 	function parseProcFile() {
 		var procFile = fs.readFileSync("ProcFile", "utf8");
-		var matches = procFile.match(/^web:\s*((\S)+(\s+))+$/); //matches 'web: foo bar baz'
+		var matches = procFile.trim().match(/^web:(.*)$/); //matches 'web: foo bar baz'
 
-		console.log("Matches: " + matches);
-		console.log(procFile);
-		return ["node", "src/server/weewikipaint", "5000"];
+		if (matches === null) throw new Error("Could not parse ProcFile");
+		var commandLine = matches[1];
+		var args = commandLine.split(" ");
+		args = args.filter(function(element) {
+			return (element.trim() !== "");
+		});
+		args = args.map(function(element) {
+			if (element === "$PORT") { 
+				return "5000";
+			} else {
+				return element;
+			}
+		});
+
+		return args;
 	}
 
 	//TODO: ELiminate duplication w/ _server_test.js
