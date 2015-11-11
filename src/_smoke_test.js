@@ -8,6 +8,7 @@
 
 	var child_process = require("child_process");
 	var http = require("http");
+	var procfile = require("procfile");
 	var fs = require("fs");
 	var child;
 
@@ -22,7 +23,7 @@
 		child.kill();
 	};
 
-	exports.test_canGetHomePage = function(test) {	
+	exports.test_canGetHomePage = function(test) {
 		httpGet("http://localhost:5000", function(response, receivedData) {
 			console.log("Callback home");
 			var foundHomePage = receivedData.indexOf("WeeWikiPaint home page") !== -1;
@@ -31,7 +32,7 @@
 		});
 	};
 
-	exports.test_canGet404Page = function(test) {	
+	exports.test_canGet404Page = function(test) {
 		httpGet("http://localhost:5000/snonexistant.html", function(response, receivedData) {
 			console.log("Callback 404");
 			var found404Page = receivedData.indexOf("WeeWikiPaint 404 page") !== -1;
@@ -42,7 +43,7 @@
 
 	function runServer(callback) {
 		var commandLine = parseProcFile();
-		child = child_process.spawn(commandLine[0], commandLine.slice(1));
+		child = child_process.spawn(commandLine.command, commandLine.options);
 
 		child.stdout.setEncoding("utf8");
 		child.stdout.on("data", function(chunk) {
@@ -56,24 +57,16 @@
 	}
 
 	function parseProcFile() {
-		var procFile = fs.readFileSync("ProcFile", "utf8");
-		var matches = procFile.trim().match(/^web:(.*)$/); //matches 'web: foo bar baz'
-
-		if (matches === null) throw new Error("Could not parse ProcFile");
-		var commandLine = matches[1];
-		var args = commandLine.split(" ");
-		args = args.filter(function(element) {
-			return (element.trim() !== "");
-		});
-		args = args.map(function(element) {
-			if (element === "$PORT") { 
+		var webCommand = procfile.parse(fs.readFileSync("Procfile", "utf8")).web;
+		webCommand.options = webCommand.options.map(function(element) {
+			if (element === "$PORT") {
 				return "5000";
 			} else {
 				return element;
 			}
 		});
 
-		return args;
+		return webCommand;
 	}
 
 	//TODO: ELiminate duplication w/ _server_test.js
