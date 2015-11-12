@@ -33,6 +33,7 @@
 		var testFiles = new jake.FileList();
 		testFiles.include("**/_*_test.js");
 		testFiles.exclude("node_modules");
+		testFiles.exclude("src/server/_release_test.js");
 
 		var reporter = require("nodeunit").reporters["default"];
 		reporter.run(testFiles.toArray(), null, function(failures) {
@@ -41,18 +42,26 @@
 		});
 	}, {async: true});
 
+
+	desc("Deploy to Heroku");
+	task("deploy", ["default"], function() {
+		console.log("1. Make sure 'git status' is clean");
+		console.log("2. 'git push heroku master'");
+		console.log("3. 'jake test'");
+	});
+
 	desc("Integrate");
 	task("integrate", ["default"], function() {
-	console.log("1. Make sure 'git status' is clean");
-	console.log("2. Build on the integration box");
-	console.log("	a. Walk over to integration box. Vamos al server de integración continua");
-	console.log("	b. 'git pull. Actualizamos el código en la rama principal (pero no en integration)'");
-	console.log("	c. 'jake'");
-	console.log("	d. 'If jake fails, stop! Try Again after fixing the issue!'");
-	console.log("NOTA: Volvemos a la máquina de desarrollo, dejamos la máquina de integración");
-	console.log("3. 'git checkout' integration. Nos cambiamos a la rama integration.");
-	console.log("4.	'git merge master --no-f --log' Mergeamos master en integration");
-	console.log("5. 'git checkout master. Nos cambiamos a master");
+		console.log("1. Make sure 'git status' is clean");
+		console.log("2. Build on the integration box");
+		console.log("	a. Walk over to integration box. Vamos al server de integración continua");
+		console.log("	b. 'git pull. Actualizamos el código en la rama principal (pero no en integration)'");
+		console.log("	c. 'jake'");
+		console.log("	d. 'If jake fails, stop! Try Again after fixing the issue!'");
+		console.log("NOTA: Volvemos a la máquina de desarrollo, dejamos la máquina de integración");
+		console.log("3. 'git checkout' integration. Nos cambiamos a la rama integration.");
+		console.log("4.	'git merge master --no-f --log' Mergeamos master en integration");
+		console.log("5. 'git checkout master. Nos cambiamos a master");
 });
 
 //	desc("Ensure correct version of Node is present. Use 'strict=true' to require exact match");

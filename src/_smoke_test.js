@@ -25,7 +25,6 @@
 
 	exports.test_canGetHomePage = function(test) {
 		httpGet("http://localhost:5000", function(response, receivedData) {
-			console.log("Callback home");
 			var foundHomePage = receivedData.indexOf("WeeWikiPaint home page") !== -1;
 			test.ok(foundHomePage, "home page should have contained test marker");
 			test.done();
@@ -34,7 +33,6 @@
 
 	exports.test_canGet404Page = function(test) {
 		httpGet("http://localhost:5000/snonexistant.html", function(response, receivedData) {
-			console.log("Callback 404");
 			var found404Page = receivedData.indexOf("WeeWikiPaint 404 page") !== -1;
 			test.ok(found404Page, "404 page should have contained test marker");
 			test.done();
