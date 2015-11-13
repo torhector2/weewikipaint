@@ -1,1 +1,1 @@
-node_modules\.bin\testacular.cmd %*
+node_modules\.bin\karma.cmd %*
