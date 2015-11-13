@@ -4,5 +4,12 @@
   "engines": {
     "node": "4.1.1",
     "npm": "2.14.4"
+  },
+  "devDependencies": {
+    "jake": "^8.0.12",
+    "jshint": "^2.8.0",
+    "karma": "^0.13.9",
+    "procfile": "^0.1.1",
+    "nodeunit": "^0.9.1"
   }
 }
